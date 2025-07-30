@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador AR com WebXR</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        model-viewer {
+            width: 100%;
+            height: 100%;
+        }
+        button[slot="ar-button"] {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: #6200ea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            z-index: 10;
+        }
+        div[slot="ar-failure"] {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px;
+            background: red;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <model-viewer
+        src="modelos/boi_cortes.glb"
+        ar
+        ar-modes="webxr scene-viewer quick-look"
+        camera-controls
+        auto-rotate
+        shadow-intensity="1"
+        autoplay ar ar-modes="webxr scene-viewer"
+        alt="Modelo 3D em AR"
+        onload="console.log('Modelo carregado com sucesso')"
+        onerror="console.error('Erro ao carregar o modelo')">
+        <button slot="ar-button">
+            Visualizar em AR
+        </button>
+        <div slot="ar-failure">
+            AR não suportado neste dispositivo ou navegador. Use um smartphone com Chrome ou Safari.
+        </div>
+    </model-viewer>
+
+    <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+    <script>
+        const modelViewer = document.querySelector('model-viewer');
+        // Log de status do AR
+        modelViewer.addEventListener('ar-status', (event) => {
+            console.log('Status do AR:', event.detail.status);
+        });
+        // Log de erros
+        modelViewer.addEventListener('error', (event) => {
+            console.error('Erro no model-viewer:', event.detail);
+        });
+        // Verifica suporte a WebXR
+        navigator.xr?.isSessionSupported('immersive-ar').then((supported) => {
+            console.log('WebXR AR suportado:', supported);
+            if (!supported) {
+                const arButton = document.querySelector('button[slot="ar-button"]');
+                arButton.style.display = 'none';
+            }
+        }).catch((err) => {
+            console.error('Erro ao verificar WebXR:', err);
+        });
+    </script>
+</body>
+</html>
